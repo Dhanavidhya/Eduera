@@ -1,0 +1,5 @@
+response = Map();
+response.put("action","reply");
+response.put("replies",{"Hey Peeps! I'm Dr. EduBot, Phd. in Assistance. Is there anything I can help you with?"});
+response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+return response;

@@ -1,0 +1,360 @@
+response = Map();
+info answers;
+response.put("action","context");
+response.put("context_id",context_id);
+response.put("context_id","cutoff");
+if(context_id.equals("Top Colleges"))
+{
+	if(!answers.containsKey("complete"))
+	{
+		queryValue = Map();
+		queryValue.put("start_index","1");
+		Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+		//info Sresponse;
+		L = {0,1,2,3,4,5,6,7,8,9};
+		ListC = {"Showing the Top 10 Colleges..."};
+		records = Sresponse.get("records");
+		info records;
+		for each  i in L
+		{
+			st = toString(i + 1) + "." + records.get(i).get("College name") + " - " + records.get(i).get("Location");
+			ListC.add(st);
+			info records.get(i).get("College name");
+		}
+		ListC.add("Want to proceed");
+		question = {"name":"complete","replies":ListC,"input":{"type":"select","options":{"Yes","No"}}};
+		response.put("questions",{question});
+	}
+	else
+	{
+		complete = answers.get("complete").get("text");
+		if("No thanks".equals(complete))
+		{
+			response.put("action","end");
+			response.put("replies",{"It was nice chatting with you 😊, Have a nice day !! Bye👋"});
+		}
+		else
+		{
+			response.put("action","reply");
+			response.put("replies",{"What else do you want?"});
+			response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+			return response;
+		}
+	}
+}
+if(context_id.equals("entrance"))
+{
+	educationtype = answers.get("education_type").get("text");
+	if(educationtype.equals("Proceed"))
+	{
+		if(!answers.containsKey("detailsEnt"))
+		{
+			queryValue = Map();
+			queryValue.put("start_index","1");
+			Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet3",queryValue);
+			rec = Sresponse.get("records");
+			info rec;
+			ListExam = List();
+			for each  i in rec
+			{
+				ListExam.add(i.get("ENTRANCE EXAMS"));
+			}
+			question = {"name":"detailsEnt","replies":{"List of Entrance exams"},"suggestions":ListExam};
+			response.put("questions",{question});
+		}
+		else
+		{
+			detailsEnt = answers.get("detailsEnt").get("text");
+			if(!answers.containsKey("complete"))
+			{
+				queryValue = Map();
+				valueC = "\"ENTRANCE EXAMS\"=\"" + detailsEnt + "\"";
+				queryValue.put("criteria",valueC);
+				queryValue.put("start_index","1");
+				response_get = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet3",queryValue);
+				query = response_get.get("records").toCollection();
+				info query;
+				Links = {"text":detailsEnt,"type":"links","links":{{"text":"Click to explore","url":query.get("WEBSITE LINK"),"target":"_blank"}}};
+				question = {"name":"complete","replies":{detailsEnt + " is conducted by " + query.get("CONDUCTING BODY"),Links},"suggestions":{"Want to continue","No thanks"}};
+				response.put("questions",{question});
+			}
+			else
+			{
+				complete = answers.get("complete").get("text");
+				if("No thanks".equals(complete))
+				{
+					response.put("action","end");
+					response.put("replies",{"It was nice chatting with you 😊, Have a nice day !! Bye👋"});
+				}
+				else
+				{
+					response.put("action","reply");
+					response.put("replies",{"What else do you want?"});
+					response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+					return response;
+				}
+			}
+		}
+	}
+}
+else if(context_id.equals("courses"))
+{
+	course_type = answers.get("course_type").get("text");
+	if(!answers.containsKey("done"))
+	{
+		st = "COURSES LIST WITHOUT MATHS";
+		if(course_type.equals("With MATHS"))
+		{
+			st = "COURSES LIST";
+		}
+		queryValue = Map();
+		queryValue.put("start_index","1");
+		Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet2",queryValue);
+		rec = Sresponse.get("records");
+		info rec;
+		L = List();
+		for each  i in rec
+		{
+			L.add(i.get(st));
+		}
+		//info L;
+		question = {"name":"done","replies":L,"input":{"type":"select","options":{"Main menu","No thanks"}}};
+		response.put("questions",{question});
+	}
+	else
+	{
+		complete = answers.get("done").get("text");
+		if("No thanks".equals(complete))
+		{
+			response.put("action","end");
+			response.put("replies",{"It was nice chatting with you 😊, Have a nice day !! Bye👋"});
+		}
+		else
+		{
+			response.put("action","reply");
+			response.put("replies",{"What else do you want?"});
+			response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+			return response;
+		}
+	}
+}
+else if(context_id.equals("cutoff"))
+{
+	activity = answers.get("select").get("text");
+	if("Yes".equals(activity))
+	{
+		if(!answers.containsKey("maths"))
+		{
+			question = {"name":"maths","replies":{"Enter your maths mark"}};
+			response.put("questions",{question});
+		}
+		else
+		{
+			maths = toNumber(answers.get("maths").get("text"));
+			if(!answers.containsKey("physics"))
+			{
+				question = {"name":"physics","replies":{"Enter your physics mark"}};
+				response.put("questions",{question});
+			}
+			else
+			{
+				physics = toNumber(answers.get("physics").get("text"));
+				if(!answers.containsKey("chemistry"))
+				{
+					question = {"name":"chemistry","replies":{"Enter your chemistry mark"}};
+					response.put("questions",{question});
+				}
+				else
+				{
+					chemistry = toNumber(answers.get("chemistry").get("text"));
+					cutoff = maths + chemistry / 2 + physics / 2;
+					//responseSet = zoho.salesiq.visitorsession.set("Triomphante1",{"cutoff":cutoff},"salesiqconnection");
+					queryValue = Map();
+					valueC = "\"CSE Cutoff\"<\"" + cutoff + "\" or \"CSE Cutoff\"=\"" + cutoff + "\" or \"ECE Cutoff\"<\"" + cutoff + "\" or \"ECE Cutoff\"=\"" + cutoff + "\" or \"IT Cutoff\"<\"" + cutoff + "\"";
+					queryValue.put("criteria",valueC);
+					queryValue.put("start_index","1");
+					Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+					info Sresponse;
+					records = Sresponse.get("records");
+					collegeList = List();
+					//locList = List();
+					for each  i in records
+					{
+						collegeList.add(i.get("College name"));
+					}
+					if(!answers.containsKey("selectCol"))
+					{
+						question = {"name":"selectCol","replies":{"Congrats! Your cutoff is " + cutoff + " .Colleges available for your cutoff.."},"suggestions":collegeList};
+						response.put("questions",{question});
+					}
+					else
+					{
+						selectCol = answers.get("selectCol").get("text");
+						if(!answers.containsKey("done"))
+						{
+							queryValue = Map();
+							valueC = "\"College name\"=\"" + selectCol + "\"";
+							queryValue.put("criteria",valueC);
+							queryValue.put("start_index","1");
+							Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+							rec = Sresponse.get("records").toCollection();
+							info rec;
+							Image = rec.get("Image");
+							url = rec.get("Website");
+							info rec.get("Image");
+							question = {"name":"done","replies":{"",{"type":"links","text":selectCol,"image":Image,"links":{{"url":url,"text":"click to explore"}}}},"suggestions":{"See eligible department at " + selectCol,"No thanks"}};
+							response.put("questions",{question});
+						}
+						else
+						{
+							done = answers.get("done").get("text");
+							done = done.subString(27);
+							info done;
+							if(!answers.containsKey("complete"))
+							{
+								info done;
+								valueC = "\"College name\"=\"" + done + "\"";
+								queryValue.put("criteria",valueC);
+								queryValue.put("start_index","1");
+								Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+								rec = Sresponse.get("records").toCollection();
+								info rec;
+								location = rec.get("Location");
+								code = rec.get("College code");
+								link = rec.get("Website");
+								dept = {"College code : " + code,"Location : " + location,"Website : " + link,"Department available for your cutoff.."};
+								cutoffList = {"CSE : " + rec.get("CSE Cutoff"),"ECE : " + rec.get("ECE Cutoff"),"EEE : " + rec.get("EEE Cutoff")," IT : " + rec.get("IT Cutoff"),"CIVIL:" + rec.get("Civil Cutoff"),"MECH :" + rec.get("Mech Cutoff")};
+								for each  i in cutoffList
+								{
+									j = i.subString(6);
+									info j;
+									if(toNumber(j) <= cutoff)
+									{
+										//dept.add((i.subString(0,5)).replaceAll(":",""));
+										dept.add(i);
+									}
+								}
+								question = {"name":"complete","replies":dept,"suggestions":{"Want to continue","No thanks"}};
+								response.put("questions",{question});
+							}
+							else
+							{
+								complete = answers.get("complete").get("text");
+								if("No thanks".equals(complete))
+								{
+									response.put("action","end");
+									response.put("replies",{"It was nice chatting with you 😊, Have a nice day !! Bye👋"});
+								}
+								else
+								{
+									response.put("action","reply");
+									response.put("replies",{"What else do you want?"});
+									response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+									return response;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		if(!answers.containsKey("cutoff"))
+		{
+			question = {"name":"cutoff","replies":{"Give me your cutoff"}};
+			response.put("questions",{question});
+		}
+		else
+		{
+			cutoff = toNumber(answers.get("cutoff").get("text"));
+			queryValue = Map();
+			valueC = "\"CSE Cutoff\"<\"" + cutoff + "\" or \"CSE Cutoff\"=\"" + cutoff + "\" or \"ECE Cutoff\"<\"" + cutoff + "\" or \"ECE Cutoff\"=\"" + cutoff + "\" or \"IT Cutoff\"<\"" + cutoff + "\"";
+			queryValue.put("criteria",valueC);
+			queryValue.put("start_index","1");
+			Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+			info Sresponse;
+			records = Sresponse.get("records");
+			collegeList = List();
+			for each  i in records
+			{
+				collegeList.add(i.get("College name"));
+			}
+			if(!answers.containsKey("selectCol"))
+			{
+				question = {"name":"selectCol","replies":{"Congrats! Your cutoff is " + cutoff + " .Colleges available for your cutoff.."},"suggestions":collegeList};
+				response.put("questions",{question});
+			}
+			else
+			{
+				selectCol = answers.get("selectCol").get("text");
+				if(!answers.containsKey("done"))
+				{
+					queryValue = Map();
+					valueC = "\"College name\"=\"" + selectCol + "\"";
+					queryValue.put("criteria",valueC);
+					queryValue.put("start_index","1");
+					Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+					rec = Sresponse.get("records").toCollection();
+					info rec;
+					Image = rec.get("Image");
+					url = rec.get("Website");
+					info rec.get("Image");
+					question = {"name":"done","replies":{"",{"type":"links","text":selectCol,"image":Image,"links":{{"url":url,"text":"click to explore"}}}},"suggestions":{"See eligible department at " + selectCol,"No thanks"}};
+					response.put("questions",{question});
+				}
+				else
+				{
+					done = answers.get("done").get("text");
+					done = done.subString(27);
+					info done;
+					if(!answers.containsKey("complete"))
+					{
+						info done;
+						valueC = "\"College name\"=\"" + done + "\"";
+						queryValue.put("criteria",valueC);
+						queryValue.put("start_index","1");
+						Sresponse = zoho.sheet.getRecords("3627n7821cca6629840b497e25b11a495c5ec","Sheet1",queryValue);
+						rec = Sresponse.get("records").toCollection();
+						info rec;
+						location = rec.get("Location");
+						code = rec.get("College code");
+						link = rec.get("Website");
+						dept = {"College code : " + code,"Location : " + location,"Website : " + link,"Department available for your cutoff.."};
+						cutoffList = {"CSE : " + rec.get("CSE Cutoff"),"ECE : " + rec.get("ECE Cutoff"),"EEE : " + rec.get("EEE Cutoff")," IT : " + rec.get("IT Cutoff"),"CIVIL:" + rec.get("Civil Cutoff"),"MECH :" + rec.get("Mech Cutoff")};
+						for each  i in cutoffList
+						{
+							j = i.subString(6);
+							info j;
+							if(toNumber(j) <= cutoff)
+							{
+								//dept.add((i.subString(0,5)).replaceAll(":",""));
+								dept.add(i);
+							}
+						}
+						question = {"name":"complete","replies":dept,"suggestions":{"Want to continue","No thanks"}};
+						response.put("questions",{question});
+					}
+					else
+					{
+						complete = answers.get("complete").get("text");
+						if("No thanks".equals(complete))
+						{
+							response.put("action","end");
+							response.put("replies",{"It was nice chatting with you 😊, Have a nice day !! Bye👋"});
+						}
+						else
+						{
+							response.put("action","reply");
+							response.put("replies",{"What else do you want?"});
+							response.put("suggestions",{"Courses Offered","Cutoff","Entrance Exams","Top Colleges"});
+							return response;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+return response;

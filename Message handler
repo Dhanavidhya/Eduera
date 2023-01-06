@@ -1,0 +1,46 @@
+response = Map();
+msg = message.get("text");
+suggestions = {"Courses Offered","Cutoff","Entrance Exams","Top Colleges"};
+if(operation.equals("chat"))
+{
+	if(suggestions.indexOf(msg) == -1)
+	{
+		response.put("action","reply");
+		response.put("replies",{"Hey Peeps! I'm Dr. EduBot, Phd. in Assistance. Is there anything I can help you with?"});
+		response.put("suggestions",suggestions);
+		return response;
+	}
+}
+if(!msg.isNull())
+{
+	response.put("action","context");
+	if(msg.equalsIgnoreCase("Courses Offered"))
+	{
+		response.put("context_id","courses");
+		question = {"name":"course_type","replies":{"What are you looking for?"},"input":{"type":"select","options":{"With MATHS","Without MATHS"}}};
+	}
+	else if(msg.equalsIgnoreCase("Entrance Exams"))
+	{
+		response.put("context_id","entrance");
+		question = {"name":"education_type","replies":{"You can know about the list of entrance exams"},"input":{"type":"select","options":{"Proceed"}}};
+	}
+	else if(msg.equalsIgnoreCase("Cutoff"))
+	{
+		response.put("context_id","cutoff");
+		question = {"name":"select","replies":{"Do you want to calculate your cutoff?"},"input":{"type":"select","options":{"Yes","No"}}};
+	}
+	else if(msg.equalsIgnoreCase("Top Colleges"))
+	{
+		response.put("context_id","Top Colleges");
+		question = {"name":"pro","replies":{"Ready to see top colleges.."},"input":{"type":"select","options":{"Proceed"}}};
+	}
+	else
+	{
+		response.put("action","reply");
+		response.put("replies",{"Hey Peeps! I'm Dr. EduBot, Phd. in Assistance. Is there anything I can help you with?"});
+		response.put("suggestions",suggestions);
+		return response;
+	}
+	response.put("questions",{question});
+}
+return response;
